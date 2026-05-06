@@ -321,12 +321,13 @@ const sections = [
     { name: 'owner_name', label: 'Owner / primary stakeholder', type: 'text' },
     { name: 'owner_role', label: 'Owner role in marketing', type: 'select', options: ['Hands-on', 'Approves only', 'Delegates fully'] }
   ]},
-  { id: 'industry', title: '2. Industry & jurisdiction', fields: [
+  { id: 'industry', title: '2. Industry, jurisdiction & compliance', fields: [
     { name: 'industry', label: 'Industry / category', type: 'text', placeholder: 'e.g., Medical aesthetic, cannabis dispensary, mortgage broker' },
     { name: 'is_regulated', label: 'Regulated industry?', type: 'select', options: ['Yes', 'No', 'Partially'] },
     { name: 'country', label: 'Country', type: 'select', options: ['Canada', 'United States', 'Both', 'Other'] },
     { name: 'jurisdiction', label: 'Specific jurisdiction(s)', type: 'text', placeholder: 'e.g., Ontario / California, Texas / Multi-state' },
-    { name: 'practitioner_types', label: 'Practitioner / license types (if applicable)', type: 'text', placeholder: 'MD, RN, NP, broker, RIA, etc.' }
+    { name: 'practitioner_types', label: 'Practitioner / license types (if applicable)', type: 'text', placeholder: 'MD, RN, NP, broker, RIA, etc.' },
+    { name: 'compliance_notes', label: 'General compliance comments (if applicable)', type: 'textarea' }
   ]},
   { id: 'sells', title: '3. What they sell', fields: [
     { name: 'core_services', label: 'Core services / products (one per line)', type: 'textarea' },
@@ -334,39 +335,30 @@ const sections = [
     { name: 'ltv', label: 'Lifetime value (if known)', type: 'text' },
     { name: 'repeat_pattern', label: 'Repeat purchase pattern', type: 'text' }
   ]},
-  { id: 'phasing', title: '4. Phasing & focus', fields: [
-    { name: 'focus_90day', label: 'Next 90 days', type: 'textarea' },
-    { name: 'future_expansion', label: 'Future', type: 'textarea' }
-  ]},
-  { id: 'icp', title: '5. Target customer', fields: [
+  { id: 'icp', title: '4. Target customer', fields: [
     { name: 'icp_description', label: 'Ideal customer profile', type: 'textarea' },
     { name: 'demographics', label: 'Demographics', type: 'textarea', placeholder: 'Age, gender, income, location' },
     { name: 'common_objections', label: 'Common objections', type: 'textarea' },
     { name: 'exclude_who', label: "Who they DON'T want as customers", type: 'textarea' }
   ]},
-  { id: 'positioning', title: '6. Positioning', fields: [
+  { id: 'positioning', title: '5. Positioning', fields: [
     { name: 'comparison', label: 'We are vs. they are', type: 'textarea' },
     { name: 'brand_assets', label: 'Existing assets to leverage', type: 'textarea', placeholder: 'Founder story, credentials, awards, case studies, photography, video, etc.' }
   ]},
-  { id: 'competition', title: '7. Competitors', fields: [
+  { id: 'competition', title: '6. Competitors', fields: [
     { name: 'known_competitors', label: 'Competitor names / URLs', type: 'textarea' }
   ]},
-  { id: 'compliance', title: '8. Compliance', fields: [
-    { name: 'compliance_notes', label: 'General compliance comments (if applicable)', type: 'textarea' }
-  ]},
-  { id: 'budget', title: '9. Budget & goals', fields: [
+  { id: 'budget', title: '7. Budget, goals, phasing & success', fields: [
     { name: 'monthly_budget', label: 'Total monthly ad budget', type: 'text', placeholder: 'e.g., $1,000/mo' },
-    { name: 'primary_conversion', label: 'Primary conversion event', type: 'text', placeholder: 'Booked consult, phone call, form fill, purchase' }
-  ]},
-  { id: 'platforms', title: '10. Platforms', fields: [
-    { name: 'platforms_use', label: 'Platform use', type: 'textarea', placeholder: 'Google Search, Google PMax, YouTube, Meta, Instagram, LinkedIn, TikTok, Reddit, etc.' },
-    { name: 'accounts_existing', label: 'Existing accounts (check any that apply)', type: 'checkbox-group', options: ['Google Ads', 'Meta', 'LinkedIn', 'Reddit'] }
-  ]},
-  { id: 'tracking', title: '11. Tracking', fields: [
-    { name: 'tracking_notes', label: 'Tracking setup notes (server-side? front-end? GA4/GTM/Pixel state? landing pages?)', type: 'textarea' }
-  ]},
-  { id: 'success', title: '12. Success', fields: [
+    { name: 'primary_conversion', label: 'Primary conversion event', type: 'text', placeholder: 'Booked consult, phone call, form fill, purchase' },
+    { name: 'focus_90day', label: 'Next 90 days', type: 'textarea' },
+    { name: 'future_expansion', label: 'Future', type: 'textarea' },
     { name: 'success_definition', label: 'How does success look like?', type: 'textarea' }
+  ]},
+  { id: 'platforms', title: '8. Platforms & tracking', fields: [
+    { name: 'platforms_use', label: 'Platform use', type: 'textarea', placeholder: 'Google Search, Google PMax, YouTube, Meta, Instagram, LinkedIn, TikTok, Reddit, etc.' },
+    { name: 'accounts_existing', label: 'Existing accounts (check any that apply)', type: 'checkbox-group', options: ['Google Ads', 'Meta', 'LinkedIn', 'Reddit'] },
+    { name: 'tracking_notes', label: 'Tracking setup notes (server-side? front-end? GA4/GTM/Pixel state? landing pages?)', type: 'textarea' }
   ]}
 ];
 
