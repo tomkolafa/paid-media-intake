@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+<title>Paid Media Client Intake</title>
+<style>
+  :root {
+    --bg: #fafaf7;
+    --surface: #ffffff;
+    --border: #e3e1d9;
+    --border-strong: #c5c2b6;
+    --text: #1a1a1a;
+    --text-muted: #6b6960;
+    --accent: #2563eb;
+    --accent-hover: #1d4ed8;
+    --danger: #dc2626;
+    --success: #16a34a;
+    --warning: #ca8a04;
+    --warning-bg: #fef9c3;
+  }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 24px 16px;
+    line-height: 1.5;
+  }
+  .container { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 28px; font-weight: 600; margin: 0 0 8px; }
+  h2 { font-size: 16px; font-weight: 600; margin: 0; }
+  .subtitle { color: var(--text-muted); margin: 0 0 24px; font-size: 14px; }
+  
+  /* Auth section */
+  .auth-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+  .auth-section.connected { border-color: var(--success); background: #f0fdf4; }
+  .auth-section.error { border-color: var(--danger); background: #fef2f2; }
+  
+  /* Form sections */
+  details {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+  }
+  details[open] { border-color: var(--border-strong); }
+  summary {
+    cursor: pointer;
+    padding: 14px 18px;
+    user-select: none;
+    list-style: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::before {
+    content: "▶";
+    font-size: 10px;
+    color: var(--text-muted);
+    transition: transform 0.15s;
+  }
+  details[open] summary::before { transform: rotate(90deg); }
+  summary:hover { background: #fafaf7; }
+  
+  .fields {
+    padding: 4px 18px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    border-top: 1px solid var(--border);
+  }
+  .field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  label {
+    font-size: 13px;
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  input, select, textarea {
+    font-family: inherit;
+    font-size: 14px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    width: 100%;
+    line-height: 1.4;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+  }
+  textarea { resize: vertical; min-height: 60px; }
+  
+  /* Buttons */
+  button {
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 9px 16px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.1s;
+  }
+  button:hover { background: #f5f4f0; border-color: var(--border-strong); }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  button.primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+  }
+  button.primary:hover {
+    background: var(--accent-hover);
+    border-color: var(--accent-hover);
+  }
+  button.danger { color: var(--danger); }
+  
+  .button-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .button-row > button { flex: 1; min-width: 120px; }
+  
+  /* Status */
+  #status {
+    font-size: 13px;
+    color: var(--text-muted);
+    min-height: 20px;
+    margin: 8px 0;
+  }
+  #status.success { color: var(--success); }
+  #status.error { color: var(--danger); }
+  
+  /* Submit area */
+  .submit-area {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px;
+    margin-top: 24px;
+  }
+  
+  /* Result area */
+  .result {
+    margin-top: 16px;
+    background: #f0fdf4;
+    border: 1px solid var(--success);
+    border-radius: 12px;
+    padding: 20px;
+  }
+  .result h2 { color: var(--success); margin-bottom: 8px; }
+  .result a { color: var(--accent); }
+  
+  pre {
+    background: #1a1a1a;
+    color: #e8e8e8;
+    padding: 14px;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 12px;
+    font-family: ui-monospace, "Menlo", monospace;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  
+  .help-text {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin: 4px 0 0;
+  }
+  
+  .warning-banner {
+    background: var(--warning-bg);
+    border: 1px solid var(--warning);
+    color: #713f12;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 16px;
+  }
+  
+  code {
+    font-family: ui-monospace, "Menlo", monospace;
+    font-size: 12px;
+    background: #f0eee6;
+    padding: 2px 5px;
+    border-radius: 3px;
+  }
+  
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 500;
+    margin-left: 6px;
+  }
+  .badge.connected { background: #dcfce7; color: #166534; }
+  .badge.disconnected { background: #fee2e2; color: #991b1b; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Paid Media Client Intake</h1>
+<p class="subtitle">Fill out during a client call. Submit to commit <code>intake.md</code> to your private skills repo on GitHub.</p>
+
+<!-- ============= AUTH SECTION ============= -->
+<div id="auth-section" class="auth-section">
+  <h2>GitHub connection <span id="auth-badge" class="badge disconnected">Not connected</span></h2>
+  <p class="help-text" style="margin: 8px 0 12px;">
+    A Personal Access Token (PAT) is needed to commit your intake to the repo. The token stays in your browser only.
+  </p>
+  
+  <div class="field-group" style="margin-bottom: 12px;">
+    <label for="repo-url">Repo (owner/name)</label>
+    <input type="text" id="repo-url" placeholder="tomkolafa/skills" value="tomkolafa/skills">
+  </div>
+  
+  <div class="field-group" style="margin-bottom: 12px;">
+    <label for="branch">Branch</label>
+    <input type="text" id="branch" placeholder="main" value="main">
+  </div>
+  
+  <div class="field-group" style="margin-bottom: 12px;">
+    <label for="pat">GitHub Personal Access Token</label>
+    <input type="password" id="pat" placeholder="github_pat_... or ghp_...">
+    <p class="help-text">
+      Need one? Go to <a href="https://github.com/settings/tokens?type=beta" target="_blank">github.com/settings/tokens</a> →
+      <strong>Generate new token (Fine-grained)</strong> → select your skills repo → permissions:
+      <code>Contents: Read and write</code>. Token is stored only in this browser.
+    </p>
+  </div>
+  
+  <div class="button-row">
+    <button id="test-auth-btn" type="button">Test connection</button>
+    <button id="forget-pat-btn" type="button" class="danger">Forget token</button>
+  </div>
+</div>
+
+<div id="status"></div>
+
+<form id="intake-form"></form>
+
+<!-- ============= SUBMIT AREA ============= -->
+<div class="submit-area">
+  <h2>Submit intake</h2>
+  <p class="help-text" style="margin: 8px 0 14px;">
+    This commits to <code id="commit-path-preview">client-specific/[slug]/_shared/intake.md</code> in your repo.
+    If a file exists at that path, you'll be asked whether to overwrite.
+  </p>
+  
+  <div class="button-row">
+    <button id="save-draft-btn" type="button">Save draft (browser)</button>
+    <button id="load-draft-btn" type="button">Load draft</button>
+    <button id="preview-btn" type="button">Preview markdown</button>
+    <button id="submit-btn" type="button" class="primary">Commit to GitHub</button>
+  </div>
+  
+  <div class="button-row" style="margin-top: 8px;">
+    <button id="reset-btn" type="button" class="danger" style="flex: 0 0 auto;">Reset all fields</button>
+  </div>
+</div>
+
+<div id="result-area"></div>
+
+</div> <!-- /container -->
+
+<script>
+//============================================================================
+// FORM SCHEMA — mirror of /paid-media-engagement-orchestrator/templates/client-intake.md
+//============================================================================
+const sections = [
+  { id: 'identity', title: '1. Business identity', fields: [
+    { name: 'business_name', label: 'Business name', type: 'text' },
+    { name: 'primary_url', label: 'Primary URL', type: 'text', placeholder: 'https://' },
+    { name: 'year_founded', label: 'Year founded', type: 'text' },
+    { name: 'owner_name', label: 'Owner / primary stakeholder', type: 'text' },
+    { name: 'owner_role', label: 'Owner role in marketing', type: 'select', options: ['Hands-on', 'Approves only', 'Delegates fully'] }
+  ]},
+  { id: 'industry', title: '2. Industry & jurisdiction', fields: [
+    { name: 'industry', label: 'Industry / category', type: 'text', placeholder: 'e.g., Medical aesthetic, cannabis dispensary, mortgage broker' },
+    { name: 'is_regulated', label: 'Regulated industry?', type: 'select', options: ['Yes', 'No', 'Partially'] },
+    { name: 'country', label: 'Country', type: 'select', options: ['Canada', 'United States', 'Both', 'Other'] },
+    { name: 'jurisdiction', label: 'Specific jurisdiction(s)', type: 'text', placeholder: 'e.g., Ontario / California, Texas / Multi-state' },
+    { name: 'practitioner_types', label: 'Practitioner / license types (if applicable)', type: 'text', placeholder: 'MD, RN, NP, broker, RIA, etc.' }
+  ]},
+  { id: 'geography', title: '3. Geography', fields: [
+    { name: 'primary_area', label: 'Primary service area', type: 'text', placeholder: 'e.g., Ottawa, ON' },
+    { name: 'secondary_areas', label: 'Secondary areas', type: 'text' },
+    { name: 'excluded_areas', label: 'Areas to exclude', type: 'text' },
+    { name: 'languages', label: 'Languages', type: 'text', placeholder: 'e.g., English, French' }
+  ]},
+  { id: 'sells', title: '4. What they sell', fields: [
+    { name: 'core_services', label: 'Core services / products (one per line)', type: 'textarea' },
+    { name: 'pricing_tier', label: 'Pricing tier', type: 'select', options: ['Premium', 'Mid-tier', 'Budget'] },
+    { name: 'aov', label: 'Average order value (CAD or USD)', type: 'text' },
+    { name: 'ltv', label: 'Lifetime value (if known)', type: 'text' },
+    { name: 'repeat_pattern', label: 'Repeat purchase pattern', type: 'text' }
+  ]},
+  { id: 'phasing', title: '5. Phasing & focus', fields: [
+    { name: 'focus_90day', label: 'Immediate focus (next 90 days)', type: 'textarea' },
+    { name: 'focus_180day', label: 'Secondary focus (90–180 days)', type: 'textarea' },
+    { name: 'future_expansion', label: 'Future expansion', type: 'textarea' },
+    { name: 'phasing_reason', label: 'Reason for phasing', type: 'textarea' }
+  ]},
+  { id: 'icp', title: '6. Target customer (owner view)', fields: [
+    { name: 'icp_description', label: 'Ideal customer profile', type: 'textarea' },
+    { name: 'demographics', label: 'Demographics', type: 'textarea', placeholder: 'Age, gender, income, location' },
+    { name: 'psychographics', label: 'Psychographics', type: 'textarea', placeholder: 'Values, lifestyle, mindset' },
+    { name: 'income_signal', label: 'Income / disposable income signal', type: 'text' },
+    { name: 'buying_triggers', label: 'Buying triggers', type: 'textarea' },
+    { name: 'common_objections', label: 'Common objections', type: 'textarea' }
+  ]},
+  { id: 'exclusions', title: '7. Customer exclusions', fields: [
+    { name: 'exclude_who', label: "Who they DON'T want as customers", type: 'textarea' },
+    { name: 'exclude_why', label: 'Reason for exclusion', type: 'textarea' },
+    { name: 'exclude_how', label: 'How exclusion should be enforced', type: 'textarea', placeholder: 'Negative keywords, audience exclusions, landing page divergence, etc.' }
+  ]},
+  { id: 'positioning', title: '8. Positioning', fields: [
+    { name: 'brand_voice', label: 'Brand voice', type: 'select', options: ['Premium', 'Approachable', 'Authoritative', 'Friendly', 'Clinical', 'Other'] },
+    { name: 'comparison', label: 'We are vs. they are', type: 'textarea' },
+    { name: 'tagline', label: 'Tagline / one-line value prop', type: 'text' },
+    { name: 'brand_assets', label: 'Brand assets to leverage', type: 'textarea', placeholder: 'Founder story, credentials, awards, etc.' }
+  ]},
+  { id: 'competition', title: '9. Competitive awareness', fields: [
+    { name: 'known_competitors', label: 'Known direct competitors (one per line)', type: 'textarea' },
+    { name: 'competitor_advantages', label: 'Where competitors out-compete us', type: 'textarea' },
+    { name: 'our_advantages', label: 'Where we out-compete competitors', type: 'textarea' }
+  ]},
+  { id: 'compliance', title: '10. Compliance & regulatory details', fields: [
+    { name: 'regulators', label: 'Specific regulating bodies (if known)', type: 'textarea', placeholder: 'CPSO, FDA, FTC, AGCO, state medical board, etc.' },
+    { name: 'specific_regs', label: 'Specific regulations to consider', type: 'textarea' },
+    { name: 'has_legal', label: 'Has legal review process for ads?', type: 'select', options: ['Yes', 'No', 'Sometimes'] }
+  ]},
+  { id: 'budget', title: '11. Budget & goals', fields: [
+    { name: 'monthly_budget', label: 'Total monthly ad budget', type: 'text', placeholder: 'e.g., $1,000/mo' },
+    { name: 'target_cpa', label: 'Acceptable cost per acquisition', type: 'text' },
+    { name: 'target_roas', label: 'Acceptable ROAS', type: 'text' },
+    { name: 'primary_conversion', label: 'Primary conversion event', type: 'text', placeholder: 'Booked consult, phone call, form fill, purchase' },
+    { name: 'secondary_conversions', label: 'Secondary conversion events', type: 'textarea' },
+    { name: 'reporting_cadence', label: 'Reporting cadence preferred', type: 'select', options: ['Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'] }
+  ]},
+  { id: 'platforms', title: '12. Platforms', fields: [
+    { name: 'platforms_use', label: 'Platforms to use', type: 'textarea', placeholder: 'Google Search, Google PMax, YouTube, Meta, Instagram, LinkedIn, TikTok, etc.' },
+    { name: 'platform_reasoning', label: 'Reason for platform choice', type: 'textarea' },
+    { name: 'platforms_excluded', label: 'Platforms excluded and why', type: 'textarea' }
+  ]},
+  { id: 'accounts', title: '13. Existing accounts', fields: [
+    { name: 'google_account', label: 'Google Ads account', type: 'select', options: ['Exists', 'Does not exist', 'Unsure'] },
+    { name: 'google_id', label: 'Google Ads account ID (if exists)', type: 'text' },
+    { name: 'meta_account', label: 'Meta Ads account', type: 'select', options: ['Exists', 'Does not exist', 'Unsure'] },
+    { name: 'meta_id', label: 'Meta Ads account ID (if exists)', type: 'text' },
+    { name: 'other_platforms', label: 'Other platforms with active accounts', type: 'textarea' },
+    { name: 'historical_perf', label: 'Historical performance summary', type: 'textarea' },
+    { name: 'tried_failed', label: "What's been tried that didn't work", type: 'textarea' },
+    { name: 'tried_worked', label: "What's been tried that worked well", type: 'textarea' }
+  ]},
+  { id: 'web', title: '14. Web & tracking', fields: [
+    { name: 'web_agency', label: 'Web agency name', type: 'text' },
+    { name: 'web_agency_contact', label: 'Web agency contact', type: 'text' },
+    { name: 'sgtm_capable', label: 'Server-side GTM capability?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
+    { name: 'cms', label: 'CMS', type: 'select', options: ['WordPress', 'Shopify', 'Webflow', 'Wix', 'Squarespace', 'Custom', 'Other'] },
+    { name: 'ga4_installed', label: 'GA4 installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
+    { name: 'gtm_installed', label: 'GTM installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
+    { name: 'pixel_installed', label: 'Meta Pixel installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
+    { name: 'landing_pages', label: 'Existing landing pages for paid traffic', type: 'textarea' },
+    { name: 'agency_can_build', label: 'Can the agency build new landing pages?', type: 'select', options: ['Yes', 'No', 'With cost', 'Unknown'] },
+    { name: 'tracking_timeline', label: 'Timeline for tracking implementation', type: 'text' }
+  ]},
+  { id: 'concerns', title: '15. Owner concerns / hopes', fields: [
+    { name: 'success_90day', label: 'What success looks like in 90 days', type: 'textarea' },
+    { name: 'success_12mo', label: 'What success looks like in 12 months', type: 'textarea' },
+    { name: 'biggest_worry', label: 'Biggest worry about paid media', type: 'textarea' },
+    { name: 'past_bad_exp', label: 'Past bad experience with marketing/agencies', type: 'textarea' },
+    { name: 'sacred', label: "Anything sacred we shouldn't change", type: 'textarea' }
+  ]},
+  { id: 'logistics', title: '16. Engagement logistics', fields: [
+    { name: 'reviews_copy', label: 'Who reviews ad copy', type: 'text' },
+    { name: 'approval_time', label: 'Approval turnaround time', type: 'text' },
+    { name: 'owner_availability', label: "Owner's availability for questions", type: 'text' },
+    { name: 'decision_authority', label: 'Decision-making authority', type: 'text' }
+  ]}
+];
+
+//============================================================================
+// STATE MANAGEMENT
+//============================================================================
+const STORAGE_KEY = 'paid_media_intake_v2';
+const PAT_KEY = 'gh_pat_v1';
+const REPO_KEY = 'gh_repo_v1';
+const BRANCH_KEY = 'gh_branch_v1';
+
+function setStatus(msg, type) {
+  const el = document.getElementById('status');
+  el.textContent = msg;
+  el.className = type || '';
+  if (msg && type !== 'error') {
+    setTimeout(() => { if (el.textContent === msg) { el.textContent = ''; el.className = ''; } }, 4000);
+  }
+}
+
+function slugify(s) {
+  return (s || 'client').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+}
+
+//============================================================================
+// FORM RENDERING
+//============================================================================
+const form = document.getElementById('intake-form');
+
+sections.forEach((section, idx) => {
+  const details = document.createElement('details');
+  if (idx === 0) details.open = true;
+  
+  const summary = document.createElement('summary');
+  summary.innerHTML = `<h2>${section.title}</h2>`;
+  details.appendChild(summary);
+  
+  const fields = document.createElement('div');
+  fields.className = 'fields';
+  
+  section.fields.forEach(field => {
+    const group = document.createElement('div');
+    group.className = 'field-group';
+    
+    const label = document.createElement('label');
+    label.textContent = field.label;
+    label.htmlFor = `field-${field.name}`;
+    group.appendChild(label);
+    
+    let input;
+    if (field.type === 'textarea') {
+      input = document.createElement('textarea');
+      input.rows = 3;
+    } else if (field.type === 'select') {
+      input = document.createElement('select');
+      const blank = document.createElement('option');
+      blank.value = '';
+      blank.textContent = '— select —';
+      input.appendChild(blank);
+      field.options.forEach(opt => {
+        const o = document.createElement('option');
+        o.value = opt;
+        o.textContent = opt;
+        input.appendChild(o);
+      });
+    } else {
+      input = document.createElement('input');
+      input.type = field.type;
+    }
+    input.id = `field-${field.name}`;
+    input.name = field.name;
+    if (field.placeholder) input.placeholder = field.placeholder;
+    
+    // Update commit path preview when business name changes
+    if (field.name === 'business_name') {
+      input.addEventListener('input', updateCommitPathPreview);
+    }
+    
+    group.appendChild(input);
+    fields.appendChild(group);
+  });
+  
+  details.appendChild(fields);
+  form.appendChild(details);
+});
+
+function updateCommitPathPreview() {
+  const name = document.getElementById('field-business_name').value.trim();
+  const slug = slugify(name) || '[slug]';
+  document.getElementById('commit-path-preview').textContent =
+    `client-specific/${slug}/_shared/intake.md`;
+}
+
+//============================================================================
+// FORM DATA
+//============================================================================
+function getFormData() {
+  const data = {};
+  sections.forEach(s => s.fields.forEach(f => {
+    const el = document.getElementById(`field-${f.name}`);
+    if (el) data[f.name] = el.value;
+  }));
+  return data;
+}
+
+function setFormData(data) {
+  sections.forEach(s => s.fields.forEach(f => {
+    const el = document.getElementById(`field-${f.name}`);
+    if (el && data[f.name] != null) el.value = data[f.name];
+  }));
+  updateCommitPathPreview();
+}
+
+//============================================================================
+// MARKDOWN GENERATION
+//============================================================================
+function generateMarkdown() {
+  const data = getFormData();
+  const today = new Date().toISOString().slice(0, 10);
+  const businessName = data.business_name || '[Business Name]';
+  
+  let md = `# Paid Media Engagement Intake\n\n`;
+  md += `**Business:** ${businessName}\n`;
+  md += `**Intake date:** ${today}\n`;
+  md += `**Source:** client call intake form\n\n---\n\n`;
+  
+  sections.forEach(section => {
+    md += `## ${section.title}\n\n`;
+    section.fields.forEach(f => {
+      const value = data[f.name] || '_(not provided)_';
+      md += `**${f.label}:**\n${value}\n\n`;
+    });
+    md += `---\n\n`;
+  });
+  
+  md += `## Red flags / inconsistencies surfaced during intake\n\n`;
+  md += `_To be populated by orchestrator on review:_\n\n`;
+  md += `- [ ] Internal contradictions check\n`;
+  md += `- [ ] Budget-vs-goals mismatch check\n`;
+  md += `- [ ] Compliance risks check\n`;
+  md += `- [ ] Targeting feasibility check\n`;
+  md += `- [ ] Tracking blockers check\n`;
+  md += `- [ ] Geo conflicts check\n`;
+  md += `- [ ] Service mismatch with site check\n`;
+  md += `- [ ] Reputation issues check\n\n`;
+  md += `---\n\n## Next steps\n\n`;
+  md += `1. Review this intake against the orchestrator's red-flag checklist\n`;
+  md += `2. If any red flags, raise with owner before Phase 1\n`;
+  md += `3. Pull this file to your laptop: \`git pull\` in your skills repo\n`;
+  md += `4. Invoke the paid-media-engagement-orchestrator skill in Claude Code\n`;
+  
+  return md;
+}
+
+//============================================================================
+// GITHUB API
+//============================================================================
+async function ghApi(method, path, body) {
+  const pat = document.getElementById('pat').value.trim();
+  const repo = document.getElementById('repo-url').value.trim();
+  
+  if (!pat) throw new Error('Personal Access Token is required');
+  if (!repo || !repo.includes('/')) throw new Error('Repo must be in format owner/name');
+  
+  const url = `https://api.github.com/repos/${repo}${path}`;
+  const headers = {
+    'Authorization': `Bearer ${pat}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+  if (body) headers['Content-Type'] = 'application/json';
+  
+  const res = await fetch(url, {
+    method,
+    headers,
+    body: body ? JSON.stringify(body) : undefined
+  });
+  
+  const data = res.status === 204 ? null : await res.json().catch(() => null);
+  
+  if (!res.ok) {
+    const msg = (data && data.message) || `HTTP ${res.status}`;
+    throw new Error(msg);
+  }
+  
+  return data;
+}
+
+async function getFileSha(path, branch) {
+  try {
+    const data = await ghApi('GET', `/contents/${encodeURIComponent(path)}?ref=${encodeURIComponent(branch)}`);
+    return data && data.sha;
+  } catch (e) {
+    if (String(e.message).toLowerCase().includes('not found')) return null;
+    throw e;
+  }
+}
+
+async function commitFile(path, content, message, branch) {
+  const sha = await getFileSha(path, branch);
+  
+  // Encode UTF-8 string to base64
+  const b64 = btoa(unescape(encodeURIComponent(content)));
+  
+  const body = {
+    message,
+    content: b64,
+    branch
+  };
+  if (sha) body.sha = sha;
+  
+  const result = await ghApi('PUT', `/contents/${encodeURIComponent(path)}`, body);
+  return { result, wasUpdate: !!sha };
+}
+
+//============================================================================
+// AUTH PERSISTENCE
+//============================================================================
+function loadAuth() {
+  const pat = localStorage.getItem(PAT_KEY);
+  const repo = localStorage.getItem(REPO_KEY);
+  const branch = localStorage.getItem(BRANCH_KEY);
+  if (pat) document.getElementById('pat').value = pat;
+  if (repo) document.getElementById('repo-url').value = repo;
+  if (branch) document.getElementById('branch').value = branch;
+}
+
+function saveAuth() {
+  const pat = document.getElementById('pat').value.trim();
+  const repo = document.getElementById('repo-url').value.trim();
+  const branch = document.getElementById('branch').value.trim() || 'main';
+  if (pat) localStorage.setItem(PAT_KEY, pat);
+  if (repo) localStorage.setItem(REPO_KEY, repo);
+  localStorage.setItem(BRANCH_KEY, branch);
+}
+
+function setAuthBadge(state) {
+  const badge = document.getElementById('auth-badge');
+  const section = document.getElementById('auth-section');
+  if (state === 'connected') {
+    badge.textContent = 'Connected';
+    badge.className = 'badge connected';
+    section.className = 'auth-section connected';
+  } else if (state === 'error') {
+    badge.textContent = 'Error';
+    badge.className = 'badge disconnected';
+    section.className = 'auth-section error';
+  } else {
+    badge.textContent = 'Not connected';
+    badge.className = 'badge disconnected';
+    section.className = 'auth-section';
+  }
+}
+
+document.getElementById('test-auth-btn').addEventListener('click', async () => {
+  setStatus('Testing connection...');
+  saveAuth();
+  try {
+    const data = await ghApi('GET', '');
+    if (data && data.full_name) {
+      setStatus(`Connected to ${data.full_name} (${data.private ? 'private' : 'public'})`, 'success');
+      setAuthBadge('connected');
+    } else {
+      throw new Error('Unexpected response');
+    }
+  } catch (e) {
+    setStatus(`Connection failed: ${e.message}`, 'error');
+    setAuthBadge('error');
+  }
+});
+
+document.getElementById('forget-pat-btn').addEventListener('click', () => {
+  if (!confirm('Remove the saved token from this browser?')) return;
+  localStorage.removeItem(PAT_KEY);
+  document.getElementById('pat').value = '';
+  setAuthBadge('');
+  setStatus('Token forgotten', 'success');
+});
+
+//============================================================================
+// FORM ACTIONS
+//============================================================================
+document.getElementById('save-draft-btn').addEventListener('click', () => {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(getFormData()));
+    setStatus('Draft saved to this browser', 'success');
+  } catch (e) {
+    setStatus('Save failed: ' + e.message, 'error');
+  }
+});
+
+document.getElementById('load-draft-btn').addEventListener('click', () => {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) { setStatus('No saved draft', 'error'); return; }
+  try {
+    setFormData(JSON.parse(raw));
+    setStatus('Draft loaded', 'success');
+  } catch (e) {
+    setStatus('Load failed: ' + e.message, 'error');
+  }
+});
+
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Clear all form fields? Saved draft will also be removed.')) return;
+  sections.forEach(s => s.fields.forEach(f => {
+    const el = document.getElementById(`field-${f.name}`);
+    if (el) el.value = '';
+  }));
+  localStorage.removeItem(STORAGE_KEY);
+  document.getElementById('result-area').innerHTML = '';
+  updateCommitPathPreview();
+  setStatus('Reset complete', 'success');
+});
+
+document.getElementById('preview-btn').addEventListener('click', () => {
+  const md = generateMarkdown();
+  const ra = document.getElementById('result-area');
+  ra.innerHTML = `
+    <div class="result" style="background:#fafaf7; border-color:var(--border);">
+      <h2 style="color:var(--text);">Markdown preview</h2>
+      <pre>${escapeHtml(md)}</pre>
+    </div>
+  `;
+});
+
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+//============================================================================
+// SUBMIT
+//============================================================================
+document.getElementById('submit-btn').addEventListener('click', async () => {
+  const data = getFormData();
+  if (!data.business_name) {
+    setStatus('Business name is required before committing', 'error');
+    document.getElementById('field-business_name').focus();
+    return;
+  }
+  
+  saveAuth();
+  
+  const slug = slugify(data.business_name);
+  const branch = document.getElementById('branch').value.trim() || 'main';
+  const path = `client-specific/${slug}/_shared/intake.md`;
+  const md = generateMarkdown();
+  
+  setStatus('Checking for existing file...');
+  
+  let existingSha;
+  try {
+    existingSha = await getFileSha(path, branch);
+  } catch (e) {
+    setStatus(`Pre-check failed: ${e.message}`, 'error');
+    return;
+  }
+  
+  if (existingSha) {
+    if (!confirm(`A file already exists at ${path}.\n\nOverwrite it?`)) {
+      setStatus('Cancelled', '');
+      return;
+    }
+  }
+  
+  setStatus(existingSha ? 'Updating intake.md on GitHub...' : 'Committing intake.md to GitHub...');
+  
+  try {
+    const message = existingSha
+      ? `Update intake for ${data.business_name}`
+      : `Add intake for ${data.business_name}`;
+    const { result, wasUpdate } = await commitFile(path, md, message, branch);
+    
+    setStatus(`✅ ${wasUpdate ? 'Updated' : 'Committed'} successfully`, 'success');
+    
+    const repo = document.getElementById('repo-url').value.trim();
+    const fileUrl = `https://github.com/${repo}/blob/${branch}/${path}`;
+    const orchestratorPrompt = `Run Phase 1 of the paid-media-engagement-orchestrator for the engagement at ~/skills-master/client-specific/${slug}/.
+
+Read ~/skills-master/client-specific/${slug}/_shared/intake.md as your primary input.
+
+Phase 1 invokes:
+1. ad-compliance — based on industry and jurisdiction in intake; route to correct industry playbook and use web search for current rules
+2. business-intelligence — full 7-pillar profile
+
+Save deliverables to ~/skills-master/client-specific/${slug}/deliverables/. Update _shared/compliance-context.md and _shared/business-context.md.
+
+End with executive summary and Ready for Phase 2 flag (or blocker list).`;
+    
+    document.getElementById('result-area').innerHTML = `
+      <div class="result">
+        <h2>✅ Intake committed</h2>
+        <p style="margin: 0 0 8px;">File: <a href="${fileUrl}" target="_blank">${path}</a></p>
+        <p style="margin: 0 0 16px;">Commit: <a href="${result.commit.html_url}" target="_blank">${result.commit.sha.slice(0, 7)}</a></p>
+        
+        <h2 style="color:var(--text); font-size:16px; margin: 16px 0 8px;">On your laptop, do this:</h2>
+        <ol style="margin: 0 0 16px; padding-left: 20px;">
+          <li>Open Terminal</li>
+          <li>Run <code>cd ~/skills-master &amp;&amp; git pull</code></li>
+          <li>Open Claude Code (or Claude Desktop)</li>
+          <li>Paste the prompt below</li>
+        </ol>
+        
+        <h2 style="color:var(--text); font-size:16px; margin: 16px 0 8px;">Phase 1 prompt (copy this)</h2>
+        <pre id="orchestrator-prompt">${escapeHtml(orchestratorPrompt)}</pre>
+        <button id="copy-prompt-btn" type="button" class="primary" style="margin-top: 8px;">Copy prompt</button>
+      </div>
+    `;
+    
+    document.getElementById('copy-prompt-btn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(orchestratorPrompt);
+        setStatus('Prompt copied — paste into Claude Code', 'success');
+      } catch (e) {
+        setStatus('Copy failed; select text manually', 'error');
+      }
+    });
+    
+    setAuthBadge('connected');
+  } catch (e) {
+    setStatus(`Commit failed: ${e.message}`, 'error');
+    setAuthBadge('error');
+  }
+});
+
+//============================================================================
+// INIT
+//============================================================================
+loadAuth();
+const savedDraft = localStorage.getItem(STORAGE_KEY);
+if (savedDraft) {
+  try {
+    setFormData(JSON.parse(savedDraft));
+    setStatus('Draft auto-restored from previous session');
+  } catch (e) {}
+}
+updateCommitPathPreview();
+</script>
+</body>
+</html>
