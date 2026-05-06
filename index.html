@@ -106,7 +106,32 @@
     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
   }
   textarea { resize: vertical; min-height: 60px; }
-  
+
+  /* Checkbox group */
+  .checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px 16px;
+    padding: 4px 0;
+    border: none;
+    background: transparent;
+    width: auto;
+  }
+  .checkbox-item {
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+    user-select: none;
+  }
+  .checkbox-item input[type=checkbox] {
+    width: auto;
+    margin: 0 6px 0 0;
+    padding: 0;
+    border: 1px solid var(--border-strong);
+    cursor: pointer;
+  }
+
   /* Buttons */
   button {
     font-family: inherit;
@@ -225,8 +250,8 @@
 <h1>Paid Media Client Intake</h1>
 <p class="subtitle">Fill out during a client call. Submit to commit <code>intake.md</code> to your private skills repo on GitHub.</p>
 
-<!-- ============= AUTH SECTION ============= -->
-<div id="auth-section" class="auth-section">
+<!-- ============= AUTH SECTION (hidden by default; auto-reveals on submit auth failure) ============= -->
+<div id="auth-section" class="auth-section" style="display:none;">
   <h2>GitHub connection <span id="auth-badge" class="badge disconnected">Not connected</span></h2>
   <p class="help-text" style="margin: 8px 0 12px;">
     A Personal Access Token (PAT) is needed to commit your intake to the repo. The token stays in your browser only.
@@ -292,9 +317,7 @@
 //============================================================================
 const sections = [
   { id: 'identity', title: '1. Business identity', fields: [
-    { name: 'business_name', label: 'Business name', type: 'text' },
     { name: 'primary_url', label: 'Primary URL', type: 'text', placeholder: 'https://' },
-    { name: 'year_founded', label: 'Year founded', type: 'text' },
     { name: 'owner_name', label: 'Owner / primary stakeholder', type: 'text' },
     { name: 'owner_role', label: 'Owner role in marketing', type: 'select', options: ['Hands-on', 'Approves only', 'Delegates fully'] }
   ]},
@@ -305,101 +328,45 @@ const sections = [
     { name: 'jurisdiction', label: 'Specific jurisdiction(s)', type: 'text', placeholder: 'e.g., Ontario / California, Texas / Multi-state' },
     { name: 'practitioner_types', label: 'Practitioner / license types (if applicable)', type: 'text', placeholder: 'MD, RN, NP, broker, RIA, etc.' }
   ]},
-  { id: 'geography', title: '3. Geography', fields: [
-    { name: 'primary_area', label: 'Primary service area', type: 'text', placeholder: 'e.g., Ottawa, ON' },
-    { name: 'secondary_areas', label: 'Secondary areas', type: 'text' },
-    { name: 'excluded_areas', label: 'Areas to exclude', type: 'text' },
-    { name: 'languages', label: 'Languages', type: 'text', placeholder: 'e.g., English, French' }
-  ]},
-  { id: 'sells', title: '4. What they sell', fields: [
+  { id: 'sells', title: '3. What they sell', fields: [
     { name: 'core_services', label: 'Core services / products (one per line)', type: 'textarea' },
-    { name: 'pricing_tier', label: 'Pricing tier', type: 'select', options: ['Premium', 'Mid-tier', 'Budget'] },
     { name: 'aov', label: 'Average order value (CAD or USD)', type: 'text' },
     { name: 'ltv', label: 'Lifetime value (if known)', type: 'text' },
     { name: 'repeat_pattern', label: 'Repeat purchase pattern', type: 'text' }
   ]},
-  { id: 'phasing', title: '5. Phasing & focus', fields: [
-    { name: 'focus_90day', label: 'Immediate focus (next 90 days)', type: 'textarea' },
-    { name: 'focus_180day', label: 'Secondary focus (90–180 days)', type: 'textarea' },
-    { name: 'future_expansion', label: 'Future expansion', type: 'textarea' },
-    { name: 'phasing_reason', label: 'Reason for phasing', type: 'textarea' }
+  { id: 'phasing', title: '4. Phasing & focus', fields: [
+    { name: 'focus_90day', label: 'Next 90 days', type: 'textarea' },
+    { name: 'future_expansion', label: 'Future', type: 'textarea' }
   ]},
-  { id: 'icp', title: '6. Target customer (owner view)', fields: [
+  { id: 'icp', title: '5. Target customer', fields: [
     { name: 'icp_description', label: 'Ideal customer profile', type: 'textarea' },
     { name: 'demographics', label: 'Demographics', type: 'textarea', placeholder: 'Age, gender, income, location' },
-    { name: 'psychographics', label: 'Psychographics', type: 'textarea', placeholder: 'Values, lifestyle, mindset' },
-    { name: 'income_signal', label: 'Income / disposable income signal', type: 'text' },
-    { name: 'buying_triggers', label: 'Buying triggers', type: 'textarea' },
-    { name: 'common_objections', label: 'Common objections', type: 'textarea' }
+    { name: 'common_objections', label: 'Common objections', type: 'textarea' },
+    { name: 'exclude_who', label: "Who they DON'T want as customers", type: 'textarea' }
   ]},
-  { id: 'exclusions', title: '7. Customer exclusions', fields: [
-    { name: 'exclude_who', label: "Who they DON'T want as customers", type: 'textarea' },
-    { name: 'exclude_why', label: 'Reason for exclusion', type: 'textarea' },
-    { name: 'exclude_how', label: 'How exclusion should be enforced', type: 'textarea', placeholder: 'Negative keywords, audience exclusions, landing page divergence, etc.' }
-  ]},
-  { id: 'positioning', title: '8. Positioning', fields: [
-    { name: 'brand_voice', label: 'Brand voice', type: 'select', options: ['Premium', 'Approachable', 'Authoritative', 'Friendly', 'Clinical', 'Other'] },
+  { id: 'positioning', title: '6. Positioning', fields: [
     { name: 'comparison', label: 'We are vs. they are', type: 'textarea' },
-    { name: 'tagline', label: 'Tagline / one-line value prop', type: 'text' },
-    { name: 'brand_assets', label: 'Brand assets to leverage', type: 'textarea', placeholder: 'Founder story, credentials, awards, etc.' }
+    { name: 'brand_assets', label: 'Existing assets to leverage', type: 'textarea', placeholder: 'Founder story, credentials, awards, case studies, photography, video, etc.' }
   ]},
-  { id: 'competition', title: '9. Competitive awareness', fields: [
-    { name: 'known_competitors', label: 'Known direct competitors (one per line)', type: 'textarea' },
-    { name: 'competitor_advantages', label: 'Where competitors out-compete us', type: 'textarea' },
-    { name: 'our_advantages', label: 'Where we out-compete competitors', type: 'textarea' }
+  { id: 'competition', title: '7. Competitors', fields: [
+    { name: 'known_competitors', label: 'Competitor names / URLs', type: 'textarea' }
   ]},
-  { id: 'compliance', title: '10. Compliance & regulatory details', fields: [
-    { name: 'regulators', label: 'Specific regulating bodies (if known)', type: 'textarea', placeholder: 'CPSO, FDA, FTC, AGCO, state medical board, etc.' },
-    { name: 'specific_regs', label: 'Specific regulations to consider', type: 'textarea' },
-    { name: 'has_legal', label: 'Has legal review process for ads?', type: 'select', options: ['Yes', 'No', 'Sometimes'] }
+  { id: 'compliance', title: '8. Compliance', fields: [
+    { name: 'compliance_notes', label: 'General compliance comments (if applicable)', type: 'textarea' }
   ]},
-  { id: 'budget', title: '11. Budget & goals', fields: [
+  { id: 'budget', title: '9. Budget & goals', fields: [
     { name: 'monthly_budget', label: 'Total monthly ad budget', type: 'text', placeholder: 'e.g., $1,000/mo' },
-    { name: 'target_cpa', label: 'Acceptable cost per acquisition', type: 'text' },
-    { name: 'target_roas', label: 'Acceptable ROAS', type: 'text' },
-    { name: 'primary_conversion', label: 'Primary conversion event', type: 'text', placeholder: 'Booked consult, phone call, form fill, purchase' },
-    { name: 'secondary_conversions', label: 'Secondary conversion events', type: 'textarea' },
-    { name: 'reporting_cadence', label: 'Reporting cadence preferred', type: 'select', options: ['Weekly', 'Bi-weekly', 'Monthly', 'Quarterly'] }
+    { name: 'primary_conversion', label: 'Primary conversion event', type: 'text', placeholder: 'Booked consult, phone call, form fill, purchase' }
   ]},
-  { id: 'platforms', title: '12. Platforms', fields: [
-    { name: 'platforms_use', label: 'Platforms to use', type: 'textarea', placeholder: 'Google Search, Google PMax, YouTube, Meta, Instagram, LinkedIn, TikTok, etc.' },
-    { name: 'platform_reasoning', label: 'Reason for platform choice', type: 'textarea' },
-    { name: 'platforms_excluded', label: 'Platforms excluded and why', type: 'textarea' }
+  { id: 'platforms', title: '10. Platforms', fields: [
+    { name: 'platforms_use', label: 'Platform use', type: 'textarea', placeholder: 'Google Search, Google PMax, YouTube, Meta, Instagram, LinkedIn, TikTok, Reddit, etc.' },
+    { name: 'accounts_existing', label: 'Existing accounts (check any that apply)', type: 'checkbox-group', options: ['Google Ads', 'Meta', 'LinkedIn', 'Reddit'] }
   ]},
-  { id: 'accounts', title: '13. Existing accounts', fields: [
-    { name: 'google_account', label: 'Google Ads account', type: 'select', options: ['Exists', 'Does not exist', 'Unsure'] },
-    { name: 'google_id', label: 'Google Ads account ID (if exists)', type: 'text' },
-    { name: 'meta_account', label: 'Meta Ads account', type: 'select', options: ['Exists', 'Does not exist', 'Unsure'] },
-    { name: 'meta_id', label: 'Meta Ads account ID (if exists)', type: 'text' },
-    { name: 'other_platforms', label: 'Other platforms with active accounts', type: 'textarea' },
-    { name: 'historical_perf', label: 'Historical performance summary', type: 'textarea' },
-    { name: 'tried_failed', label: "What's been tried that didn't work", type: 'textarea' },
-    { name: 'tried_worked', label: "What's been tried that worked well", type: 'textarea' }
+  { id: 'tracking', title: '11. Tracking', fields: [
+    { name: 'tracking_notes', label: 'Tracking setup notes (server-side? front-end? GA4/GTM/Pixel state? landing pages?)', type: 'textarea' }
   ]},
-  { id: 'web', title: '14. Web & tracking', fields: [
-    { name: 'web_agency', label: 'Web agency name', type: 'text' },
-    { name: 'web_agency_contact', label: 'Web agency contact', type: 'text' },
-    { name: 'sgtm_capable', label: 'Server-side GTM capability?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
-    { name: 'cms', label: 'CMS', type: 'select', options: ['WordPress', 'Shopify', 'Webflow', 'Wix', 'Squarespace', 'Custom', 'Other'] },
-    { name: 'ga4_installed', label: 'GA4 installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
-    { name: 'gtm_installed', label: 'GTM installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
-    { name: 'pixel_installed', label: 'Meta Pixel installed?', type: 'select', options: ['Yes', 'No', 'Unknown'] },
-    { name: 'landing_pages', label: 'Existing landing pages for paid traffic', type: 'textarea' },
-    { name: 'agency_can_build', label: 'Can the agency build new landing pages?', type: 'select', options: ['Yes', 'No', 'With cost', 'Unknown'] },
-    { name: 'tracking_timeline', label: 'Timeline for tracking implementation', type: 'text' }
-  ]},
-  { id: 'concerns', title: '15. Owner concerns / hopes', fields: [
-    { name: 'success_90day', label: 'What success looks like in 90 days', type: 'textarea' },
-    { name: 'success_12mo', label: 'What success looks like in 12 months', type: 'textarea' },
-    { name: 'biggest_worry', label: 'Biggest worry about paid media', type: 'textarea' },
-    { name: 'past_bad_exp', label: 'Past bad experience with marketing/agencies', type: 'textarea' },
-    { name: 'sacred', label: "Anything sacred we shouldn't change", type: 'textarea' }
-  ]},
-  { id: 'logistics', title: '16. Engagement logistics', fields: [
-    { name: 'reviews_copy', label: 'Who reviews ad copy', type: 'text' },
-    { name: 'approval_time', label: 'Approval turnaround time', type: 'text' },
-    { name: 'owner_availability', label: "Owner's availability for questions", type: 'text' },
-    { name: 'decision_authority', label: 'Decision-making authority', type: 'text' }
+  { id: 'success', title: '12. Success', fields: [
+    { name: 'success_definition', label: 'How does success look like?', type: 'textarea' }
   ]}
 ];
 
@@ -465,19 +432,38 @@ sections.forEach((section, idx) => {
         o.textContent = opt;
         input.appendChild(o);
       });
+    } else if (field.type === 'checkbox-group') {
+      input = document.createElement('div');
+      input.className = 'checkbox-group';
+      field.options.forEach(opt => {
+        const wrap = document.createElement('label');
+        wrap.className = 'checkbox-item';
+        const cb = document.createElement('input');
+        cb.type = 'checkbox';
+        cb.name = field.name;
+        cb.value = opt;
+        cb.id = `field-${field.name}-${opt.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}`;
+        wrap.appendChild(cb);
+        const txt = document.createElement('span');
+        txt.textContent = ' ' + opt;
+        wrap.appendChild(txt);
+        input.appendChild(wrap);
+      });
     } else {
       input = document.createElement('input');
       input.type = field.type;
     }
     input.id = `field-${field.name}`;
-    input.name = field.name;
+    if (field.type !== 'checkbox-group') {
+      input.name = field.name;
+    }
     if (field.placeholder) input.placeholder = field.placeholder;
-    
-    // Update commit path preview when business name changes
-    if (field.name === 'business_name') {
+
+    // Update commit path preview when the URL changes (slug is derived from URL)
+    if (field.name === 'primary_url') {
       input.addEventListener('input', updateCommitPathPreview);
     }
-    
+
     group.appendChild(input);
     fields.appendChild(group);
   });
@@ -486,11 +472,35 @@ sections.forEach((section, idx) => {
   form.appendChild(details);
 });
 
+function deriveBusinessFromUrl(url) {
+  if (!url) return { display: '[Unknown]', slug: 'client' };
+  let host;
+  try {
+    const u = new URL(url.match(/^https?:\/\//i) ? url : 'https://' + url);
+    host = u.hostname;
+  } catch (e) {
+    host = url.replace(/^https?:\/\//i, '').split('/')[0];
+  }
+  host = host.replace(/^www\./i, '');
+  const parts = host.split('.');
+  // Take the second-level domain (e.g. acme-clinic from acme-clinic.com)
+  const sld = parts.length >= 2 ? parts[parts.length - 2] : parts[0];
+  const slug = slugify(sld);
+  const display = sld
+    .split('-')
+    .filter(Boolean)
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+  return { display: display || '[Unknown]', slug: slug || 'client' };
+}
+
 function updateCommitPathPreview() {
-  const name = document.getElementById('field-business_name').value.trim();
-  const slug = slugify(name) || '[slug]';
+  const urlEl = document.getElementById('field-primary_url');
+  const url = urlEl ? urlEl.value.trim() : '';
+  const { slug } = deriveBusinessFromUrl(url);
+  const slugForDisplay = url ? slug : '[slug]';
   document.getElementById('commit-path-preview').textContent =
-    `client-specific/${slug}/_shared/intake.md`;
+    `client-specific/${slugForDisplay}/_shared/intake.md`;
 }
 
 //============================================================================
@@ -499,16 +509,33 @@ function updateCommitPathPreview() {
 function getFormData() {
   const data = {};
   sections.forEach(s => s.fields.forEach(f => {
-    const el = document.getElementById(`field-${f.name}`);
-    if (el) data[f.name] = el.value;
+    if (f.type === 'checkbox-group') {
+      const wrap = document.getElementById(`field-${f.name}`);
+      if (!wrap) return;
+      const checked = Array.from(wrap.querySelectorAll('input[type=checkbox]:checked')).map(cb => cb.value);
+      data[f.name] = checked.join(', ');
+    } else {
+      const el = document.getElementById(`field-${f.name}`);
+      if (el) data[f.name] = el.value;
+    }
   }));
   return data;
 }
 
 function setFormData(data) {
   sections.forEach(s => s.fields.forEach(f => {
-    const el = document.getElementById(`field-${f.name}`);
-    if (el && data[f.name] != null) el.value = data[f.name];
+    if (f.type === 'checkbox-group') {
+      const wrap = document.getElementById(`field-${f.name}`);
+      if (!wrap) return;
+      const raw = data[f.name];
+      const checked = typeof raw === 'string' ? raw.split(',').map(v => v.trim()) : Array.isArray(raw) ? raw : [];
+      wrap.querySelectorAll('input[type=checkbox]').forEach(cb => {
+        cb.checked = checked.includes(cb.value);
+      });
+    } else {
+      const el = document.getElementById(`field-${f.name}`);
+      if (el && data[f.name] != null) el.value = data[f.name];
+    }
   }));
   updateCommitPathPreview();
 }
@@ -519,10 +546,11 @@ function setFormData(data) {
 function generateMarkdown() {
   const data = getFormData();
   const today = new Date().toISOString().slice(0, 10);
-  const businessName = data.business_name || '[Business Name]';
-  
+  const { display: businessName } = deriveBusinessFromUrl(data.primary_url);
+
   let md = `# Paid Media Engagement Intake\n\n`;
   md += `**Business:** ${businessName}\n`;
+  md += `**Primary URL:** ${data.primary_url || '[not provided]'}\n`;
   md += `**Intake date:** ${today}\n`;
   md += `**Source:** client call intake form\n\n---\n\n`;
   
@@ -798,11 +826,16 @@ document.getElementById('load-draft-btn').addEventListener('click', () => {
 document.getElementById('reset-btn').addEventListener('click', () => {
   if (!confirm('Clear all form fields? Saved draft will also be removed.')) return;
   sections.forEach(s => s.fields.forEach(f => {
-    const el = document.getElementById(`field-${f.name}`);
-    if (el) el.value = '';
+    if (f.type === 'checkbox-group') {
+      const wrap = document.getElementById(`field-${f.name}`);
+      if (wrap) wrap.querySelectorAll('input[type=checkbox]').forEach(cb => cb.checked = false);
+    } else {
+      const el = document.getElementById(`field-${f.name}`);
+      if (el) el.value = '';
+    }
   }));
   localStorage.removeItem(STORAGE_KEY);
-  document.getElementById('result-area').innerHTML = '';
+  document.getElementById('result-area').textContent = '';
   updateCommitPathPreview();
   setStatus('Reset complete', 'success');
 });
@@ -825,59 +858,73 @@ function escapeHtml(s) {
 //============================================================================
 // SUBMIT
 //============================================================================
+function revealAuthOnFailure(err) {
+  const msg = String(err && err.message || err || '');
+  const isAuth = /401|403|404|Bad credentials|Not Found|Forbidden/i.test(msg);
+  if (isAuth) {
+    document.getElementById('auth-section').style.display = '';
+    setStatus('Auth check failed — see GitHub connection panel above. Token may have expired or its scope changed.', 'error');
+    // Trigger the verbose diagnostic that already exists on the test button
+    document.getElementById('test-auth-btn').click();
+  } else {
+    setStatus(`Commit failed: ${msg}`, 'error');
+  }
+  setAuthBadge('error');
+}
+
 document.getElementById('submit-btn').addEventListener('click', async () => {
   const data = getFormData();
-  if (!data.business_name) {
-    setStatus('Business name is required before committing', 'error');
-    document.getElementById('field-business_name').focus();
+  if (!data.primary_url) {
+    setStatus('Primary URL is required before committing', 'error');
+    document.getElementById('field-primary_url').focus();
     return;
   }
-  
+
   saveAuth();
-  
-  const slug = slugify(data.business_name);
+
+  const { display: businessName, slug } = deriveBusinessFromUrl(data.primary_url);
   const branch = document.getElementById('branch').value.trim() || 'main';
   const path = `client-specific/${slug}/_shared/intake.md`;
   const md = generateMarkdown();
-  
+
   setStatus('Checking for existing file...');
-  
+
   let existingSha;
   try {
     existingSha = await getFileSha(path, branch);
   } catch (e) {
-    setStatus(`Pre-check failed: ${e.message}`, 'error');
+    revealAuthOnFailure(e);
     return;
   }
-  
+
   if (existingSha) {
     if (!confirm(`A file already exists at ${path}.\n\nOverwrite it?`)) {
       setStatus('Cancelled', '');
       return;
     }
   }
-  
+
   setStatus(existingSha ? 'Updating intake.md on GitHub...' : 'Committing intake.md to GitHub...');
-  
+
   try {
     const message = existingSha
-      ? `Update intake for ${data.business_name}`
-      : `Add intake for ${data.business_name}`;
+      ? `Update intake for ${businessName}`
+      : `Add intake for ${businessName}`;
     const { result, wasUpdate } = await commitFile(path, md, message, branch);
-    
+
     setStatus(`✅ ${wasUpdate ? 'Updated' : 'Committed'} successfully`, 'success');
-    
+
     const repo = document.getElementById('repo-url').value.trim();
     const fileUrl = `https://github.com/${repo}/blob/${branch}/${path}`;
-    const orchestratorPrompt = `Run Phase 1 of the paid-media-engagement-orchestrator for the engagement at ~/skills-master/client-specific/${slug}/.
+    const orchestratorPrompt = `Run Phase 1 of the paid-media-engagement-orchestrator for the engagement at ~/Downloads/ai_tools/skills/client-specific/${slug}/.
 
-Read ~/skills-master/client-specific/${slug}/_shared/intake.md as your primary input.
+Read ~/Downloads/ai_tools/skills/client-specific/${slug}/_shared/intake.md as your primary input.
 
 Phase 1 invokes:
 1. ad-compliance — based on industry and jurisdiction in intake; route to correct industry playbook and use web search for current rules
 2. business-intelligence — full 7-pillar profile
 
-Save deliverables to ~/skills-master/client-specific/${slug}/deliverables/. Update _shared/compliance-context.md and _shared/business-context.md.
+Save deliverables to ~/Downloads/ai_tools/skills/client-specific/${slug}/deliverables/. Update _shared/compliance-context.md and _shared/business-context.md.
 
 End with executive summary and Ready for Phase 2 flag (or blocker list).`;
     
@@ -890,7 +937,7 @@ End with executive summary and Ready for Phase 2 flag (or blocker list).`;
         <h2 style="color:var(--text); font-size:16px; margin: 16px 0 8px;">On your laptop, do this:</h2>
         <ol style="margin: 0 0 16px; padding-left: 20px;">
           <li>Open Terminal</li>
-          <li>Run <code>cd ~/skills-master &amp;&amp; git pull</code></li>
+          <li>Run <code>cd ~/Downloads/ai_tools/skills &amp;&amp; git pull</code></li>
           <li>Open Claude Code (or Claude Desktop)</li>
           <li>Paste the prompt below</li>
         </ol>
@@ -912,8 +959,7 @@ End with executive summary and Ready for Phase 2 flag (or blocker list).`;
     
     setAuthBadge('connected');
   } catch (e) {
-    setStatus(`Commit failed: ${e.message}`, 'error');
-    setAuthBadge('error');
+    revealAuthOnFailure(e);
   }
 });
 
