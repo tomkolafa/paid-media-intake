@@ -657,18 +657,111 @@ function setAuthBadge(state) {
 document.getElementById('test-auth-btn').addEventListener('click', async () => {
   setStatus('Testing connection...');
   saveAuth();
-  try {
-    const data = await ghApi('GET', '');
-    if (data && data.full_name) {
-      setStatus(`Connected to ${data.full_name} (${data.private ? 'private' : 'public'})`, 'success');
-      setAuthBadge('connected');
-    } else {
-      throw new Error('Unexpected response');
-    }
-  } catch (e) {
-    setStatus(`Connection failed: ${e.message}`, 'error');
+
+  const pat = document.getElementById('pat').value.trim();
+  const repo = document.getElementById('repo-url').value.trim();
+
+  if (!pat) {
+    setStatus('Connection failed: Personal Access Token is required.', 'error');
     setAuthBadge('error');
+    return;
   }
+  if (!repo || !repo.includes('/')) {
+    setStatus('Connection failed: Repo must be in format owner/name (e.g. tomkolafa/skills).', 'error');
+    setAuthBadge('error');
+    return;
+  }
+
+  const headers = {
+    'Authorization': `Bearer ${pat}`,
+    'Accept': 'application/vnd.github+json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+
+  // Step 1: does the token authenticate at all?
+  let userLogin = null;
+  try {
+    const r = await fetch('https://api.github.com/user', { headers });
+    if (r.status === 401) {
+      setStatus('Connection failed: Token is invalid, revoked, or has a typo (HTTP 401). Generate a new fine-grained PAT and paste it again.', 'error');
+      setAuthBadge('error');
+      return;
+    }
+    if (!r.ok) {
+      const d = await r.json().catch(() => null);
+      const msg = (d && d.message) || `HTTP ${r.status}`;
+      setStatus(`Connection failed at /user: ${msg}`, 'error');
+      setAuthBadge('error');
+      return;
+    }
+    const u = await r.json();
+    userLogin = u.login;
+  } catch (e) {
+    setStatus(`Connection failed: network error contacting api.github.com (${e.message}).`, 'error');
+    setAuthBadge('error');
+    return;
+  }
+
+  // Step 2: can the token see THIS repo?
+  let repoData = null;
+  try {
+    const r = await fetch(`https://api.github.com/repos/${repo}`, { headers });
+    const reqId = r.headers.get('x-github-request-id') || 'n/a';
+
+    if (r.status === 404) {
+      setStatus(
+        `Token authenticates as @${userLogin}, but GitHub returned 404 for ${repo}. ` +
+        `This means the fine-grained token does NOT have access to this specific repo. ` +
+        `FIX: github.com/settings/tokens → edit this token → "Repository access" = "Only select repositories" → check "${repo}" → save. ` +
+        `Also confirm "Repository permissions → Contents: Read and write". (Request ID: ${reqId})`,
+        'error'
+      );
+      setAuthBadge('error');
+      return;
+    }
+    if (r.status === 403) {
+      const d = await r.json().catch(() => null);
+      const msg = (d && d.message) || '';
+      setStatus(
+        `Token authenticates as @${userLogin}, but ${repo} returned 403 Forbidden. ` +
+        `${msg} FIX: token's "Repository permissions → Contents" must be "Read and write". (Request ID: ${reqId})`,
+        'error'
+      );
+      setAuthBadge('error');
+      return;
+    }
+    if (!r.ok) {
+      const d = await r.json().catch(() => null);
+      const msg = (d && d.message) || `HTTP ${r.status}`;
+      setStatus(`Connection failed at /repos/${repo}: ${msg}. (Request ID: ${reqId})`, 'error');
+      setAuthBadge('error');
+      return;
+    }
+    repoData = await r.json();
+  } catch (e) {
+    setStatus(`Connection failed: network error reading ${repo} (${e.message}).`, 'error');
+    setAuthBadge('error');
+    return;
+  }
+
+  // Step 3: confirm WRITE access (Contents: write)
+  const canPush = repoData.permissions && repoData.permissions.push === true;
+  if (!canPush) {
+    setStatus(
+      `Token authenticates as @${userLogin} and can READ ${repoData.full_name}, but it does NOT have write access. ` +
+      `FIX: token's "Repository permissions → Contents" must be "Read and write" (currently it's read-only).`,
+      'error'
+    );
+    setAuthBadge('error');
+    return;
+  }
+
+  // All good
+  setStatus(
+    `Connected to ${repoData.full_name} (${repoData.private ? 'private' : 'public'}) as @${userLogin}. Write access confirmed.`,
+    'success'
+  );
+  setAuthBadge('connected');
 });
 
 document.getElementById('forget-pat-btn').addEventListener('click', () => {
